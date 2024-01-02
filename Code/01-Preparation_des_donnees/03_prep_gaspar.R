@@ -148,8 +148,14 @@ gaspar <- gaspar %>%
   select(-dup)
 
 
+# ---------------------------------------------------------------------------- #
+# 4) Selection de variables             --------------------------------------
+# ---------------------------------------------------------------------------- #
 
-
+gaspar <- gaspar %>%
+  select(reg, ncc_reg, dep, ncc_dep, cod_commune, lib_commune, 
+         lib_risque_jo, lib_risque_jo2, inondation, secheresse, inondation_all, lib_risque, num_risque_jo, 
+         duree, an_debut, an_fin)
 # ---------------------------------------------------------------------------- #
 # 5) Gestion des evenements pluri-annuels --------------------------------------
 # ---------------------------------------------------------------------------- #
@@ -196,6 +202,7 @@ gaspar_agregation_annuelle <- merge(gaspar_an, gaspar_an_pl,
 # ---------------------------------------------------------------------------- #
 # 7) Enregistrement des donnees ------------------------------------------------
 # ---------------------------------------------------------------------------- #
+dir.create(file.path("../../Data/Gaspar", "output"), showWarnings = FALSE)
 write_rds(gaspar, "../../Data/Gaspar/output/gaspar.rds")
 write_rds(gaspar_pl, "../../Data/Gaspar/output/gaspar_pluri_annuel.rds")
 write_rds(gaspar_agregation_annuelle, "../../Data/Gaspar/output/gaspar_ag.rds")

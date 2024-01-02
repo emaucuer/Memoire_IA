@@ -7,12 +7,15 @@
 # argiles)
 # --------------------------------------------- #
 
+library(reshape)
 library(dplyr)
 library(readr)
 library(stringi)
 library(data.table)
 library(readxl)
 library(sf)
+library(lubridate)
+
 
 com_bound_wo_om <- read_rds("../../Data/Data_GIS/geojson/communes-vs.rds")
 
@@ -94,7 +97,7 @@ infos_com <- infos_com %>%
 
 ## Test de merge avec la base de carto -----------------------------------------
 setDT(infos_com)
-setDT(com_detail)
+setDT(com_bound_wo_om)
 testM <- merge(com_bound_wo_om %>% mutate(bound = 1), 
                infos_com %>% mutate(infos=1), 
                by.x="code", by.y="code_insee", all=T)
@@ -239,6 +242,7 @@ ppri <- ppri %>% mutate_at(vars(starts_with("dat")), funs(ymd_hms))
 table(ppri$lib_risque,ppri$num_risque)
 
 ## Creation de la bdd finale (1 ligne par code insee)
+
 ppriCom <- ppri %>%
   mutate(value = 1,
          lib_risque_short = ifelse(num_risque == 131, "ppri_lave_torrent",
@@ -249,10 +253,9 @@ ppriCom <- ppri %>%
                                                                ifelse(num_risque == 183,"ppri_crue_rapide","ppri_inondation"))))))) %>% 
   select(code_insee, lib_risque_short, value) %>%
   distinct() %>%
-  pivot_wider(names_from = lib_risque_short, values_from = value) %>%
+  cast(code_insee ~ lib_risque_short) %>%
   merge(com_bound_wo_om %>% select(code), by.x = "code_insee", by.y = "code", all =T) %>%
   replace(is.na(.), 0) %>%
-  select(-geometry) %>%
   mutate(ppri_sum = rowSums(across(starts_with("ppri_"))),
          ppri = as.integer(ppri_sum>0))
          

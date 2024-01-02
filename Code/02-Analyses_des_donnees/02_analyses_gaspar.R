@@ -308,7 +308,7 @@ dep_an <- dep_an %>%
   mutate(an = rep(an_min:an_max, length(unique(dep_an$dep))))
 
 # Toutes les communes x tous les ans
-com_an <- infos_com %>% select("code_insee", "altitude_moyenne", "superficie", "population")
+com_an <- infos_com %>% select("code_insee", "altitude", "superficie", "population")
 com_an <- com_an[rep(c(1:nrow(com_an)), delta_an),]
 com_an <- com_an %>% 
   arrange(code_insee) %>% 
