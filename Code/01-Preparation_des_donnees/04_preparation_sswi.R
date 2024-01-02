@@ -118,7 +118,7 @@ all_sswi_yearly <- merge.data.table(all_sswi_yearly,coord_reproj,
 # ---------------------------------------------------------------------------- #
 all_sswi_yearly_1982 <- all_sswi_yearly[annee >= 1982]
                                         
-write_rds(all_sswi_yearly_1982, "../../Data/sswi/all_sswi_yearly_1982_2021.rds")
+write_rds(all_sswi_yearly_1982, "../../Data/sswi/sswi_yearly_1982_2021.rds")
 
 
 
@@ -136,7 +136,7 @@ sswi_1e4 <- fct_lissage(1e4, dataCoord, all_sswi_yearly_1982,
                         1982:2021, c("sswi_min", "sswi_max", "sswi_moy"))
 print(Sys.time()-start)
 
-#write_rds(sswi_1e4, "../../Data/sswi/all_sswi_1982_2021_lissage_1e4.rds")
+#write_rds(sswi_1e4, "../../Data/sswi/sswi_1982_2021_lissage_1e4.rds")
 
 
 
@@ -154,7 +154,7 @@ final_sswi <- sswi_1e4 %>%
   filter_all(all_vars(!is.na(.))) %>%
   bind_rows(sswi_1e3)
 
-write_rds(final_sswi, "../../Data/sswi/final_sswi_1982_2021.rds")
+write_rds(final_sswi, "../../Data/sswi/sswi_yearly_1982_2021_smooth.rds")
 
 
 
