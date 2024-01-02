@@ -1,0 +1,58 @@
+library(ggplot2)
+library(sf)
+
+# FONCTIONS DE PLOT CARTO ------------------------------------------------------
+
+plot_carto_manual <- function(data, variable, list_colors, color_contour="grey40", title="", legend="right", legend_title=variable){
+  ggplot(data=data %>% rename(variable_to_plot=variable)) +
+    geom_sf(aes(geometry = geometry, fill = as.factor(variable_to_plot)), color = NA) +
+    scale_fill_manual(values = list_colors, name=legend_title) +
+    geom_sf(data = dep_bound, aes(geometry = geometry), color=color_contour, fill = NA) +
+    theme_void() +
+    theme(legend.position = legend) +
+    ggtitle(title)
+}
+
+plot_carto_gradient <- function(data, variable, color_low="white", color_high, color_contour="grey40", title="", legend_title=variable){
+  ggplot(data=data %>% rename(variable_to_plot=variable)) +
+    geom_sf(aes(geometry = geometry, fill = variable_to_plot), color = NA) +
+    geom_sf(data = dep_bound, aes(geometry = geometry), color=color_contour, fill = NA) +
+    scale_fill_gradient(low = color_low, high = color_high, name=legend_title) +
+    theme_void() +
+    ggtitle(title)
+}
+
+plot_carto_gradient2 <- function(data, variable, color_low, color_mid="white", color_high, color_contour="grey40", my_mid=0, my_limits, title="", legend_title=variable){
+  ggplot(data=data %>% rename(variable_to_plot=variable)) +
+    geom_sf(aes(geometry = geometry, fill = variable_to_plot, colour = NA)) +
+    geom_sf(data = dep_bound, aes(geometry = geometry), color=color_contour, fill = NA) +
+    scale_fill_gradient2(low = color_low, mid = color_mid, high = color_high, 
+                         midpoint= my_mid, limits = my_limits,
+                         name=legend_title) +
+    theme_void() +
+    ggtitle(title)
+}
+
+
+# Palettes de couleur ------------------------------------------------------
+
+colors_red_5 <- c("white", "#fee0d2", "#fc9272", "#ef3b2c", "#a50f15")
+colors_vert_sia <- c("white", "#A4F6E1", "#1DE9B6", "#00BA8A", "#008C60")
+colors_red <- c("white", "#fff5f0", "#fcbba1", "#fb6a4a","#cb181d")
+colors_red6 <- c("white", "#fff5f0", "#fcbba1", "#fb6a4a","#cb181d", "#a50f15")
+colors_blue <- c("white", "#c6dbef", "#6baed6", "#2171b5","#08306b")
+colors_blue6 <- c('white','#deebf7','#9ecae1','#4292c6','#08519c','#08306b')
+colors_eaip <- c('white','#deebf7','#9ecae1', '#4292c6','#08519c')
+colors_bg <-  c("white","#F1F1F1","#91B1A7","#5F7F75","#45696C")
+
+
+
+my_colors = c("#1DE9B6", "#A6A6A6", "#707070","#363636")
+my_colors2 = c("#A6A6A6", "#707070","#363636")
+my_colors3 = c("#6A6A6A","#2171B5","#CB181D")
+my_colors4 = c("#D0FBF0","#A4F7E2","#76F1D2","#1DE9B6","#11B38A") # nuance vert sia
+
+
+#c("grey70", "#D0FBF0", "#A4F6E1", "#75F1D3", "#1DE9B6")
+#c("grey70", "#1DE9B6", "#00BA8A", "#008C60", "#006039")
+
