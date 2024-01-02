@@ -16,31 +16,32 @@ source("../00_lib_externe.R")
 
 
 # Data 
-gaspar <- read_rds("../../Data/Gaspar/gaspar.rds")
-gaspar_pl <- read_rds("../../Data/Gaspar/gaspar_pluri_annuel.rds")
+gaspar <- read_rds("../../Data/Gaspar/output/gaspar.rds")
+gaspar_pl <- read_rds("../../Data/Gaspar/output/gaspar_pluri_annuel.rds")
+gaspar_ag <- read_rds("../../Data/Gaspar/output/gaspar_ag.rds")
+
 infos_com <- read_rds("../../Data/Administratif/infos_communes.rds")
 com_bound <- read_rds("../../Data/Data_GIS/geojson/communes-vs.rds")
 dep_bound <- read_rds("../../Data/Data_GIS/geojson/departements-vs-om.rds") %>%
   filter(code<=95)
 
 
-
+# Prep data
 gaspar <- gaspar %>% filter(an_debut < 2022)
 gaspar_pl <- gaspar_pl %>% filter(an_debut < 2022)
+gaspar_ag <- gaspar_ag %>% filter(annee < 2022)
 
 gaspar$localisation <- ifelse(gaspar$dep <= 95, "Métropole", "Outre-Mer")
 
 
 # -----------------------------------------------------------------------------#
-## 1) Duree d un sinistre ------------------------------------------------------
+## 1) Statistiques globales ----------------------------------------------------
 # -----------------------------------------------------------------------------#
 boxplot(gaspar %>% filter(inondation==T) %>% select(duree), outline=FALSE)
 boxplot(gaspar %>% filter(secheresse==T) %>% select(duree), outline=FALSE)
 
 
-# -----------------------------------------------------------------------------#
-## 2) Statistiques globales ----------------------------------------------------
-# -----------------------------------------------------------------------------#
+
 peril_global <- gaspar %>%
   group_by(lib_risque_jo2) %>%
   summarize(nb_perils = n()) %>%
@@ -53,12 +54,12 @@ peril_global <- gaspar %>%
 # -----------------------------------------------------------------------------#
 
 ### Nb de communes reconnues par an  -------------------------------------------
-peril_an <- gaspar %>%
+cat_an <- gaspar %>%
   distinct(an_debut, cod_commune) %>%
   group_by(an_debut) %>%
   summarise(nb_commune = n())
 
-plot_ly(peril_an) %>%
+plot_ly(cat_an) %>%
   add_bars(x =~ an_debut, y =~ nb_commune, width = 0.6,
            marker = list(color = my_colors3[1])) %>%
   layout(title = "", #"Nombre de communes reconnues par exercice",
@@ -68,12 +69,12 @@ plot_ly(peril_an) %>%
 
 
 # version pluri annuelle 
-peril_an_pl <- gaspar_pl %>%
+cat_an_pl <- gaspar_pl %>%
   distinct(annee, cod_commune) %>%
   group_by(annee) %>%
   summarise(nb_commune = n())
 
-plot_ly(peril_an_pl) %>%
+plot_ly(cat_an_pl) %>%
   add_bars(x =~ annee, y =~ nb_commune, width = 0.6,
            marker = list(color = my_colors3[1])) %>%
   layout(title = "", #"Nombre de communes reconnues par exercice",
@@ -82,35 +83,35 @@ plot_ly(peril_an_pl) %>%
          margin = list(l=50, r=50, b=50, t=50),
          font= list(size=25))
 
-mean(peril_an_pl$nb_commune)
-summary(peril_an_pl %>% filter(annee != 1982 & annee != 1999))
+mean(cat_an_pl$nb_commune)
+summary(cat_an_pl %>% filter(annee != 1982 & annee != 1999))
 
 
 ### Détail de chaque risque par an ---------------------------------------------
-peril_an_type <- gaspar %>% group_by(an_debut, lib_risque_jo2) %>%
+cat_an_type <- gaspar %>% group_by(an_debut, lib_risque_jo2) %>%
   summarize(nb_perils = n()) %>%
   ungroup() 
   
-plot_ly(peril_an_type, colors = "Pastel1") %>%
+plot_ly(cat_an_type, colors = "Pastel1") %>%
   add_trace(x =~ an_debut, y =~ nb_perils, color=~lib_risque_jo2, type = "bar") %>% 
   layout(barmode = 'stack') 
 
-peril_an_type_pl <- gaspar_pl %>% group_by(an_debut, lib_risque_jo2) %>%
+cat_an_type_pl <- gaspar_pl %>% group_by(an_debut, lib_risque_jo2) %>%
   summarize(nb_perils = n()) %>%
   ungroup() 
 
-plot_ly(peril_an_type_pl, colors = "Pastel1") %>%
+plot_ly(cat_an_type_pl, colors = "Pastel1") %>%
   add_trace(x =~ an_debut, y =~ nb_perils, color=~lib_risque_jo2, type = "bar") %>% 
   layout(barmode = 'stack') 
 
 
 ### Inondation vs Secheresse vs Autre par an -----------------------------------
-peril_an_type_agg <- gaspar %>% 
+cat_an_type_agg <- gaspar %>% 
   group_by(an_debut, lib_risque) %>%
   summarize(nb_perils = n()) %>%
   ungroup() 
 
-plot_ly(peril_an_type_agg, colors = my_colors2) %>%
+plot_ly(cat_an_type_agg, colors = my_colors2) %>%
   add_trace(x =~ an_debut, y =~ nb_perils, color=~lib_risque, type = "bar") %>% 
   layout(barmode = 'stack',
          yaxis = list(title = "Nombre de reconaissances CATNAT", 
@@ -119,7 +120,7 @@ plot_ly(peril_an_type_agg, colors = my_colors2) %>%
 
 
 # Pluri annuelle
-peril_an_type_agg_pl <- gaspar_pl %>% 
+cat_an_type_agg_pl <- gaspar_pl %>% 
   group_by(annee, lib_risque) %>%
   summarize(nb_perils = n()) %>%
   mutate(order = ifelse(lib_risque == "Inondation",1,
@@ -127,7 +128,7 @@ peril_an_type_agg_pl <- gaspar_pl %>%
   arrange(order) %>%
   ungroup() 
 
-plot_ly(peril_an_type_agg_pl, colors = my_colors3) %>%
+plot_ly(cat_an_type_agg_pl, colors = my_colors3) %>%
   add_trace(x =~ annee, y =~ nb_perils, color=~lib_risque, type = "bar") %>% 
   layout(barmode = 'stack',
          yaxis = list(title = "", #"Nombre de reconaissances CATNAT", 
@@ -385,4 +386,13 @@ plot_carto_manual(dataPlot, "secheresse_cat", colors_red6, title="Nombre de reco
 
 ### Secheresse -----------------------------------------------------------------
 plot_carto_gradient(dataPlot, "secheresse", color_high="#99000D", title="Nombre de CATNAT sécheresse depuis le début du régime")
+
+ggplot(dataPlot) +
+  geom_sf(aes(geometry = geometry, fill = secheresse), color = NA) +
+  geom_sf(data = dep_bound, aes(geometry = geometry), color="grey70", fill = NA) +
+  scale_fill_gradient(low = "grey100", high = "#11B38A", name="Nombre d'arrêtés") +
+  theme_void() +
+  theme(plot.background = element_rect(fill = "#F2F2F2", colour="#F2F2F2"),
+        panel.background = element_rect(fill = "#F2F2F2", colour="#F2F2F2"))
+
 
