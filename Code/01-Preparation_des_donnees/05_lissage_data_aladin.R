@@ -146,56 +146,13 @@ dataF85 <- preproc_data(dataCoord, dataInitiale85, 2022:2050,
 
 
 
+
+
+
 #------------------------------------------------------------------------------#
-# II) Data Climsec annuelles ---------------------------------------------------
+# II) Data Climsec mensuelles  ------------------------------------------------
 #------------------------------------------------------------------------------#
 dir.create(file.path("../../Data/DRIAS_Climsec/", "lissage"), showWarnings = FALSE)
-
-## A) Periode historique -------------------------------------------------------
-#### 1) Chargement des données -------------------------------------------------
-dataInitialeClimsec <- read_delim(unz("../../Data/DRIAS_Climsec/input.zip","indicesARPEGE_RETIC_1982_1999.txt"),
-                                  delim = ";", skip = 18) # skip = 27
-#### 2) Preprocesing -----------------------------------------------------------
-dataFClimsec <- preproc_data(dataCoord, dataInitialeClimsec, 1982:1999, 
-                             "DRIAS_Climsec/lissage/indic_climsec_1982_1999", save = F)
-
-
-
-## B) Data Climsec A1B ---------------------------------------------------------
-#### 1) Chargement des données -------------------------------------------------
-dataInitiale_A1B <- read_delim(unz("../../Data/DRIAS_Climsec/input.zip","indicesARPEGE_RETIC_2000_2050_A1B.txt"),
-                                  delim = ";", skip = 18) # skip = 27
-#### 2) Preprocesing -----------------------------------------------------------
-dataFA1B <- preproc_data(dataCoord, dataInitiale_A1B, 2000:2050, 
-                         "DRIAS_Climsec/lissage/indic_climsec_2000_2050_A1B", save = F)
-
-
-
-## C) Data Climsec A2 ----------------------------------------------------------
-#### 1) Chargement des données -------------------------------------------------
-dataInitiale_A2 <- read_delim(unz("../../Data/DRIAS_Climsec/input.zip","indicesARPEGE_RETIC_2000_2050_A2.txt"),
-                               delim = ";", skip = 18) # skip = 27
-#### 2) Preprocesing -----------------------------------------------------------
-dataFA2 <- preproc_data(dataCoord, dataInitiale_A2, 2000:2050, 
-                        "DRIAS_Climsec/lissage/indic_climsec_2000_2050_A2", save = F)
-
-
-
-## D) Data Climsec B1 ----------------------------------------------------------
-#### 1) Chargement des données -------------------------------------------------
-dataInitiale_B1 <- read_delim(unz("../../Data/DRIAS_Climsec/input.zip","indicesARPEGE_RETIC_2000_2050_B1.txt"),
-                              delim = ";", skip = 18) # skip = 27
-#### 2) Preprocesing -----------------------------------------------------------
-dataFB1 <- preproc_data(dataCoord, dataInitiale_B1, 2000:2050, 
-                        "DRIAS_Climsec/lissage/indic_climsec_2000_2050_B1", save = F)
-
-
-
-
-
-#------------------------------------------------------------------------------#
-# III) Data Climsec mensuelles  ------------------------------------------------
-#------------------------------------------------------------------------------#
 
 ## A) Climsec mensuel A2 -------------------------------------------------------
 #### 1) Chargement des données -------------------------------------------------
@@ -234,32 +191,45 @@ dataFB1_y <- preproc_data(dataCoord, dataInitiale_B1_y, 2020:2050,
 
 
 #------------------------------------------------------------------------------#
-# IX) Data aladin ecart à horizon 2050 -----------------------------------------
+# III) Data Climsec annuelles ---------------------------------------------------
 #------------------------------------------------------------------------------#
-# 
-# 
-# ######## RCP26
-# ## 1) Chargement des données -------------------------------------------------
-# dataH2_26 <- read_delim("../Data/aladin/indicesALADIN63_CNRM-CM5_ecart_H2_RCP26.txt",
-#                              delim = ";", skip = 55) # skip = 27
-# 
-# ## 2) Preprocesing -----------------------------------------------------------
-# dataH2_26 <- preproc_data(dataCoord, dataH2_26, 2022:2050, "indic_aladin_ecart_RCP26", T)
-# 
-# 
-# ######## RCP45
-# ## 1) Chargement des données -------------------------------------------------
-# dataH2_45 <- read_delim("../Data/aladin/indicesALADIN63_CNRM-CM5_ecart_H2_RCP45.txt",
-#                         delim = ";", skip = 14) # skip = 27
-# 
-# ## 2) Preprocesing -----------------------------------------------------------
-# dataH2_45 <- preproc_data(dataCoord, dataH2_45, 2022:2050, "indic_aladin_ecart_RCP26", T)
-# 
-# 
-# ######## RCP85
-# ## 1) Chargement des données -------------------------------------------------
-# dataH2_26 <- read_delim("../Data/aladin/indicesALADIN63_CNRM-CM5_ecart_H2_RCP26.txt",
-#                         delim = ";", skip = 14) # skip = 27
-# 
-# ## 2) Preprocesing -----------------------------------------------------------
-# dataH2_26 <- preproc_data(dataCoord, dataH2_26, 2022:2050, "indic_aladin_ecart_RCP26", T)
+dir.create(file.path("../../Data/DRIAS_Climsec/", "lissage"), showWarnings = FALSE)
+
+## A) Periode historique -------------------------------------------------------
+#### 1) Chargement des données -------------------------------------------------
+dataInitialeClimsec <- read_delim(unz("../../Data/DRIAS_Climsec/input.zip","indicesARPEGE_RETIC_1982_1999.txt"),
+                                  delim = ";", skip = 18) # skip = 27
+#### 2) Preprocesing -----------------------------------------------------------
+dataFClimsec <- preproc_data(dataCoord, dataInitialeClimsec, 1982:1999,
+                             "DRIAS_Climsec/lissage/indic_climsec_1982_1999", save = F)
+
+
+
+## B) Data Climsec A1B ---------------------------------------------------------
+#### 1) Chargement des données -------------------------------------------------
+dataInitiale_A1B <- read_delim(unz("../../Data/DRIAS_Climsec/input.zip","indicesARPEGE_RETIC_2000_2050_A1B.txt"),
+                               delim = ";", skip = 18) # skip = 27
+#### 2) Preprocesing -----------------------------------------------------------
+dataFA1B <- preproc_data(dataCoord, dataInitiale_A1B, 2000:2050,
+                         "DRIAS_Climsec/lissage/indic_climsec_2000_2050_A1B", save = F)
+
+
+
+## C) Data Climsec A2 ----------------------------------------------------------
+#### 1) Chargement des données -------------------------------------------------
+dataInitiale_A2 <- read_delim(unz("../../Data/DRIAS_Climsec/input.zip","indicesARPEGE_RETIC_2000_2050_A2.txt"),
+                              delim = ";", skip = 18) # skip = 27
+#### 2) Preprocesing -----------------------------------------------------------
+dataFA2 <- preproc_data(dataCoord, dataInitiale_A2, 2000:2050,
+                        "DRIAS_Climsec/lissage/indic_climsec_2000_2050_A2", save = F)
+
+
+
+## D) Data Climsec B1 ----------------------------------------------------------
+#### 1) Chargement des données -------------------------------------------------
+dataInitiale_B1 <- read_delim(unz("../../Data/DRIAS_Climsec/input.zip","indicesARPEGE_RETIC_2000_2050_B1.txt"),
+                              delim = ";", skip = 18) # skip = 27
+#### 2) Preprocesing -----------------------------------------------------------
+dataFB1 <- preproc_data(dataCoord, dataInitiale_B1, 2000:2050,
+                        "DRIAS_Climsec/lissage/indic_climsec_2000_2050_B1", save = F)
+

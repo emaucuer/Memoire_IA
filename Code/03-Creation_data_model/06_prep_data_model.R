@@ -20,13 +20,13 @@ library(sf)
 #------------------------------------------------------------------------------#
 # Récupération des données -----------------------------------------------------
 #------------------------------------------------------------------------------#
-dataAladin <- read_rds("../../Data/DRIAS_Aladin/lissage/indic_aladin_1982_2021_all_V2.rds")
+dataAladin <- read_rds("../../Data/DRIAS_Aladin/lissage/indic_aladin_1982_2021.rds")
 climsecA1B <- read_rds("../../Data/DRIAS_Climsec/lissage/indic_climsec_2000_2050_A1B.rds")
 climsecA2 <- read_rds("../../Data/DRIAS_Climsec/lissage/indic_climsec_2000_2050_A2.rds")
 climsecB1 <- read_rds("../../Data/DRIAS_Climsec/lissage/indic_climsec_2000_2050_B1.rds")
 climsecHist <- read_rds("../../Data/DRIAS_Climsec/lissage/indic_climsec_1982_1999.rds")
-new_sswi <- read_rds("../../Data/sswi/final_sswi_1982_2021.rds")
-gaspar_ag_an <- read_rds("../../Data/Gaspar/gaspar_ag.rds")
+new_sswi <- read_rds("../../Data/sswi/sswi_yearly_1982_2021_smooth.rds")
+gaspar_ag_an <- read_rds("../../Data/Gaspar/output/gaspar_ag.rds")
 
 #------------------------------------------------------------------------------#
 # Ajout des CatNat GASPAR ------------------------------------------------------
@@ -127,6 +127,7 @@ dataFinale_sswi <- merge(dataFinaleClimsec, new_sswi %>% select(-longM,-latM),
 
 
 # Enregistrement ---------------------------------------------------------------
-write_rds(dataFinale_sswi, "../Data/modelisation/data_modelisation_1982_2021_f.rds")
+dir.create(file.path("../../Data/", "modelisation"), showWarnings = FALSE)
+write_rds(dataFinale_sswi, "../../Data/Modelisation/data_modelisation_1982_2021_f.rds")
 
 
