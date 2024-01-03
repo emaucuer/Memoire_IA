@@ -1,5 +1,6 @@
 .Rproj.user
-.Rhistory
+**/**/*.Rhistory
+**/*.Rhistory
 .Ruserdata
 .DS_Store
 Data/

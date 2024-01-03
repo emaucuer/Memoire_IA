@@ -15,11 +15,12 @@ library(plotly)
 # -----------------------------------------------------------------------------#
 # Evolution des variables à horizon 2050 ---------------------------------------
 # -----------------------------------------------------------------------------#
+dataFinaleCom <- read_rds("../../Data/modelisation/data_modelisation_1982_2021_f.rds")
 
 data85 <- read_rds("../../Data/projection/data_proj_2022_2050_RCP85_A2.rds")
 data45 <- read_rds("../../Data/projection/data_proj_2022_2050_RCP45_B1.rds")
 
-deltaA2 <- dataFinaleCom_new_pl %>% 
+deltaA2 <- dataFinaleCom %>% 
   select(id, starts_with("sswi")) %>%
   group_by(id) %>%
   summarise_all(mean) %>%
@@ -31,7 +32,7 @@ deltaA2 <- dataFinaleCom_new_pl %>%
          delta_max = sswi_max_2050-sswi_max_hist,
          delta_moy = sswi_moy_2050-sswi_moy_hist)
 
-deltaB1 <- dataFinaleCom_new_pl %>% 
+deltaB1 <- dataFinaleCom %>% 
   select(id, starts_with("sswi")) %>%
   group_by(id) %>%
   summarise_all(mean) %>%
