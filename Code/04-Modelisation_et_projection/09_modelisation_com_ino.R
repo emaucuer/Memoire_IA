@@ -23,42 +23,42 @@ library(ranger)
 # rr1mm+tnnd+pq90+rr+pav+tncwd+pxcwd+txfd+tnfd+altitude
 
 
-# Chargement des donnees -------------------------------------------------------
-dataFinaleCom <- read_rds("../Data/modelisation/data_modelisation_1982_2021_all_V2_climsec.rds")
-dataFinaleClimsec_pl <- read_rds("../Data/modelisation/data_modelisation_1982_2021_all_V2_climsec_pl.rds")
+my_colors = c("#1DE9B6", "#A6A6A6", "#707070", "#363636")
 
-dataFinaleCom_new <- read_rds("../Data/modelisation/data_modelisation_1982_2021_f.rds")
-dataFinaleCom_new_pl <- read_rds("../Data/modelisation/data_modelisation_1982_2021_f_pl.rds")
+# -----------------------------------------------------------------------------#
+# Chargement des donnees -------------------------------------------------------
+# -----------------------------------------------------------------------------#
+dataFinaleCom <- read_rds("../../Data/modelisation/data_modelisation_1982_2021_f.rds")
+
+dataFinaleCom_pl <- dataFinaleCom %>% 
+  select(-inondation, -secheresse) %>%
+  rename(inondation = inondation_pl,
+         secheresse = secheresse_pl)
+
+dataFinaleCom <- dataFinaleCom %>% 
+  select(-inondation_pl, -secheresse_pl) 
 
 dataFinaleCom <- dataFinaleCom %>%
+  mutate(indic_in = ifelse(inondation==0,0,1))
+dataFinaleCom_pl <- dataFinaleCom_pl %>%
   mutate(indic_in = ifelse(inondation==0,0,1))
 
 list_communes = unique(dataFinaleCom$id)
 list_CN <- c("inondation", "secheresse", "indic_in")
 list_var <- setdiff(names(dataFinaleCom), 
-                    c("id","annee","longM","latM","inondation", "secheresse",
-                      "commune", "indic_in", "code_dep"))
+                    c("id","annee","longM","latM", "code_dep",  "commune",
+                      "inondation", "secheresse", "indic_in"))
 
 list_var2 <- c("pfl90","tav","tnav","txav","txq10","tnq10","tr","sd",
   "txq90","inondationH3",
   "rr1mm","tnnd","pq90","rr","pav","tncwd","pxcwd","txfd","tnfd","altitude")
 
-# Preparation des donnees ------------------------------------------------------
-dataFinaleCom_train <- dataFinaleCom %>%
-  filter(1984 < annee & annee < 2017 & annee != 1999) ############# -- Atention a 1999
 
-dataFinaleCom_test <- dataFinaleCom %>%
-  filter(annee >= 2017)
 
-dataFinaleCom_train_new <- dataFinaleCom_new %>%
-  filter(1984 < annee & annee < 2017 & annee != 1999) ############# -- Atention a 1999
 
-dataFinaleCom_test_new <- dataFinaleCom_new %>%
-  filter(annee >= 2017)
-
-# ---------------------------------------------------------------------------- #
-# ---------------------------------------------------------------------------- #
-my_colors = c("#1DE9B6", "#A6A6A6", "#707070", "#363636")
+# -----------------------------------------------------------------------------#
+# Fonctions ------------------------------------------------------------------ #
+# -----------------------------------------------------------------------------#
 eval_model <- function(model, trainset, testset){
   dataPlot_train <- trainset %>% mutate(pred = predict(model, type = "response"))
   dataPlot_test <- testset %>% 
@@ -68,7 +68,7 @@ eval_model <- function(model, trainset, testset){
   print(paste("RMSE test :",rmse(dataPlot_test$inondation, dataPlot_test$pred)))
   print(paste("AIC :",AIC(model)))
   print(paste("BIC :",BIC(model)))
-
+  
   dataPlot <- dataPlot_train  %>% 
     group_by(annee) %>%
     summarise(obs = sum(inondation),
@@ -101,7 +101,7 @@ create_new_var <- function(trainset, testset, train = T){
     trainset$pav_cat3 <- cut(trainset$pav, breaks=quantile(trainset$pav, c(0, 0.5, 1)), include.lowest = TRUE)
     trainset$pfl90_cat <- cut(trainset$pfl90, breaks=quantile(trainset$pfl90, c(0, 0.25, 0.75, 1)), include.lowest = TRUE)
     return(as.data.frame(trainset))
-    }
+  }
   else{  
     testset$rr_cat <- cut(testset$rr, breaks=quantile(trainset$rr, c(0, 0.25, 0.5, 0.75, 1)), include.lowest = TRUE)
     testset$rr_cat2 <- cut(testset$rr, breaks=quantile(trainset$rr, c(0, 0.75, 1)), include.lowest = TRUE)
@@ -111,19 +111,66 @@ create_new_var <- function(trainset, testset, train = T){
     testset$pav_cat3 <- cut(testset$pav, breaks=quantile(trainset$pav, c(0, 0.5, 1)), include.lowest = TRUE)
     testset$pfl90_cat <- cut(testset$pfl90, breaks=quantile(trainset$pfl90,  c(0, 0.25, 0.75, 1)), include.lowest = TRUE)
     return(as.data.frame(testset))
-    }
+  }
 }
 
+
+
+# -----------------------------------------------------------------------------#
+# Preparation des donnees ------------------------------------------------------
+# -----------------------------------------------------------------------------#
+dataFinaleCom <- dataFinaleCom %>% rename(sswi = sswi_A2, spi = spi_A2)
+dataFinaleCom_pl <- dataFinaleCom_pl %>% rename(sswi = sswi_A2, spi = spi_A2)
+
+dataFinaleCom_train <- dataFinaleCom %>%
+  filter(1984 < annee & annee < 2017 & annee != 1999) ############# -- Atention a 1999
+
+dataFinaleCom_test <- dataFinaleCom %>%
+  filter(annee >= 2017)
+
+dataFinaleCom_train_pl <- dataFinaleCom_pl %>%
+  filter(1984 < annee & annee < 2017 & annee != 1999) ############# -- Atention a 1999
+
+dataFinaleCom_test_pl <- dataFinaleCom_pl %>%
+  filter(annee >= 2017)
 
 dataFinaleCom_train <- create_new_var(dataFinaleCom_train, dataFinaleCom_test)
 dataFinaleCom_test <- create_new_var(dataFinaleCom_train, dataFinaleCom_test, train = F)
 
-dataFinaleCom_train_new <- create_new_var(dataFinaleCom_train_new, dataFinaleCom_test_new)
-dataFinaleCom_test_new <- create_new_var(dataFinaleCom_train_new, dataFinaleCom_test_new, F)
+dataFinaleCom_train_pl <- create_new_var(dataFinaleCom_train_pl, dataFinaleCom_test_pl)
+dataFinaleCom_test_pl <- create_new_var(dataFinaleCom_train_pl, dataFinaleCom_test_pl, F)
+
+
+
+
 
 # ---------------------------------------------------------------------------- #
 #                                   GLM 
 # ---------------------------------------------------------------------------- #
+
+# ---------------------------------------------------------------------------- #
+##                         Final Model for paper                         -----
+# ---------------------------------------------------------------------------- #
+
+# Modèle 16
+glm_poisson16 <- glm(inondation ~ txav+tr+
+                       txq90+inondationH3+
+                       rr1mm+rr_cat+tncwd+pxcwd+txfd+tnfd+altitude+as.factor(ppri),
+                     family=poisson("log"), data = dataFinaleCom_train)
+summary(glm_poisson16)
+eval_model(glm_poisson16, dataFinaleCom_train, dataFinaleCom_test)
+
+
+# New modèle
+glm_poisson_new <- glm(inondation ~ sswi_max+sswi_min+sswi_moy+
+                         txav+tr+
+                         txq90+inondationH3+
+                         rr1mm+rr_cat+tncwd+pxcwd+txfd+tnfd+altitude+as.factor(ppri),
+                       family=poisson("log"), data = dataFinaleCom_train_new)
+summary(glm_poisson_new)
+eval_model(glm_poisson_new, dataFinaleCom_train_new, dataFinaleCom_test_new)
+
+
 
 # ---------------------------------------------------------------------------- #
 ##                              GLM Binomial                             -----
@@ -288,23 +335,7 @@ summary(glm_poisson15)
 eval_model(glm_poisson15, dataFinaleCom_train, dataFinaleCom_test)
 
 
-# Modèle 16
-glm_poisson16 <- glm(inondation ~ txav+tr+
-                       txq90+inondationH3+
-                       rr1mm+rr_cat+tncwd+pxcwd+txfd+tnfd+altitude+as.factor(ppri),
-                     family=poisson("log"), data = dataFinaleCom_train)
-summary(glm_poisson16)
-eval_model(glm_poisson16, dataFinaleCom_train, dataFinaleCom_test)
 
-
-# New modèle
-glm_poisson_new <- glm(inondation ~ sswi_max+sswi_min+sswi_moy+
-                         txav+tr+
-                       txq90+inondationH3+
-                       rr1mm+rr_cat+tncwd+pxcwd+txfd+tnfd+altitude+as.factor(ppri),
-                     family=poisson("log"), data = dataFinaleCom_train_new)
-summary(glm_poisson_new)
-eval_model(glm_poisson_new, dataFinaleCom_train_new, dataFinaleCom_test_new)
 
 
 # Modèle work
@@ -352,7 +383,7 @@ test <- dataFinaleCom_test %>% select(list_var2[1:5], inondation, -secheresseH3)
 # Fitting Random Forest to the train dataset
 set.seed(120)  # Setting seed
 
-fitrf_ino=ranger(inondation~
+fitrf_ino_essai=ranger(inondation~
                    tav+
                    txav+
                    sd+
@@ -376,7 +407,7 @@ fitrf_ino=ranger(inondation~
                    inondationH3+
                    altitude+
                    spi+
-                   sswi_A2+
+                   sswi+
                    rr1mm+
                    ppri_sum,
                  data=dataFinaleCom_train,
@@ -420,20 +451,25 @@ fitrf_ino_new=ranger(inondation~
                  min.node.size=16000, # A augmenter 
                  write.forest=TRUE)
 
-saveRDS(fitrf_ino_new, "new_fit_rf_ino.rds")
+### Save -------------------------------------------------------------------------
+saveRDS(fitrf_ino,"../Modeles/fitrf_ino.rds")
+saveRDS(fitrf_ino_new, "../Modeles/new_fit_rf_ino.rds")
+saveRDS(fitrf_ino_essai, "../Modeles/fit_rf_ino_essai.rds")
+
+
 
 ### Evaluation -------------------------------------------------------------------
-fit_plot = fitrf_ino_new
+fit_plot = fitrf_ino_essai
 
-y_pred_rd <- predict(fit_plot, data=dataFinaleCom_test_new)
-rmse(dataFinaleCom_test_new$inondation, y_pred_rd$predictions)
+y_pred_rd <- predict(fit_plot, data=dataFinaleCom_test)
+rmse(dataFinaleCom_test$inondation, y_pred_rd$predictions)
 
 rmse(fit_plot$predictions, dataFinaleCom_train_new$inondation)
 
 
 dataPlotTrain <- dataFinaleCom_train_new %>% 
   bind_cols(fit_plot$predictions) %>%
-  rename('pred'="...64") %>%
+  rename('pred'="...65") %>%
   group_by(annee) %>%
   summarise(obs = sum(inondation), pred = sum(pred))
 
@@ -462,10 +498,6 @@ plot_ly(dataPlotTest,
 
 
 
-### Save -------------------------------------------------------------------------
-saveRDS(fitrf_ino,"fitrf_ino.rds")
-
-
 
 
 # Confusion Matrix
@@ -480,37 +512,6 @@ importance(classifier_RF)
 
 # Variable importance plot
 varImpPlot(classifier_RF)
-
-
-
-
-
-# ---------------------------------------------------------------------------- #
-# Regression linéaire ----------------------------------------------------------
-# ---------------------------------------------------------------------------- #
-lm <- lm(inondation ~  tav+tnav+txnd+
-           pav+rr+rr1mm+pn20mm+pxcdd+
-           pq90+altitude+
-           annee,
-         data = dataFinaleCom_train)
-summary(lm)
-
-result_lm <- as.data.frame(predict(lm, type = "response"))
-colnames(result_lm) <- c("lm")
-
-
-## pour une commune 
-lm_nantes <- lm(inondation ~tav + tnav + txav + txnd + 
-                  pav  + rr + rr1mm +
-                  pn20mm + pxcdd + pq90 + pq99 + 
-                  annee,
-                data = dataFinaleCom_train %>% filter(id == "44109"))
-summary(lm_nantes)
-
-result_lm_nantes <- as.data.frame(predict(lm_nantes, type = "response"))
-colnames(result_lm_nantes) <- c("lm")
-
-
 
 
 

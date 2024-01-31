@@ -12,8 +12,8 @@ library(readr)
 library(data.table)
 
 # Création de la base de plot
-dataFinaleDep <- read_rds("../Data/data_modelisation_dep_1982_2021.rds")
-dep_bound <- read_rds("../Data_GIS/geojson/departements-vs-om.rds")
+dataFinaleDep <- read_rds("../../Data/Modelisation/data_modelisation_dep_1982_2021.rds")
+dep_bound <- read_rds("../../Data/Data_GIS/geojson/departements-vs-om.rds")
 setDT(dataFinaleDep)
 setDT(dep_bound)
 dataPlot<- merge(dataFinaleDep, dep_bound, by.x="dep", by.y="code")

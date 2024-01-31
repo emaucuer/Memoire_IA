@@ -12,8 +12,8 @@ library(readr)
 library(data.table)
 
 # Création de la base de plot
-dataFinaleCom <- read_rds("../Data/data_modelisation_1982_2021_all_V2.rds")
-com_bound <- read_rds("../Data_GIS/geojson/communes-vs-om.rds")
+dataFinaleCom <- read_rds("../../Data/Modelisation/data_modelisation_1982_2021_f.rds")
+com_bound <- read_rds("../../Data/Data_GIS/geojson/communes-vs-om.rds")
 setDT(dataFinaleCom)
 setDT(com_bound)
 dataPlot<- merge(dataFinaleCom, com_bound, by.x="id", by.y="code")
